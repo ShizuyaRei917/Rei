@@ -164,7 +164,8 @@ async function chat($: EngineInterface, text: string) {
 
 // Called from the mod's one session.start hook.
 export async function koharuStart($: EngineInterface) {
-  await $.command.register({ name: 'koharu', description: 'Open Koharu, your little companion' })
+  await $.command.register({ name: 'rei-koharu', description: 'Open Koharu, your little companion' })
+  await $.command.register({ name: 'koharu', description: 'Open Koharu (same as /rei-koharu)' })
   void $.ui.open({ id: KOHARU_PANE, title: TITLE })
   idleTimer?.cancel()
   idleTimer = $.clock.every(40 * 1000, () => { void idleTick($) })
@@ -196,12 +197,15 @@ export async function koharuOnTurnEnd($: EngineInterface, isOk: boolean) {
   }
 }
 
-export function registerKoharu(on: On) {
-  on('command.run', { command: 'koharu' }, async $ => {
-    await $.ui.open({ id: KOHARU_PANE, title: TITLE })
+async function openKoharu($: EngineInterface) {
+  await $.ui.open({ id: KOHARU_PANE, title: TITLE })
 
-    return { text: '小春来啦～' }
-  })
+  return { text: '小春来啦～' }
+}
+
+export function registerKoharu(on: On) {
+  on('command.run', { command: 'rei-koharu' }, openKoharu)
+  on('command.run', { command: 'koharu' }, openKoharu)
 
   on('turn.complete', async ($, e, next) => {
     const result = await next(e)

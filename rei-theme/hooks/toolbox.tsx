@@ -14,7 +14,7 @@ type Tab = NonNullable<Heartbeat['tab']>
 const PANELS = [
   { id: 'rei-dashboard', title: '仪表板 Dashboard', command: 'rei-dashboard', icon: '📊',
     what: '这次会话的数字：对话次数、工具调用、改动文件、用时、上下文用量' },
-  { id: 'rei-koharu', title: '小春 Koharu', command: 'koharu', icon: '🦊',
+  { id: 'rei-koharu', title: '小春 Koharu', command: 'rei-koharu', icon: '🦊',
     what: '陪你写代码的小狐狸，可以聊天、摸头、变成人形' },
   { id: 'rei-toolbox', title: '工具箱 Toolbox', command: 'rei-toolbox', icon: '🧰',
     what: '就是这里：看装了什么、用了什么、mod 有没有在运行' },
