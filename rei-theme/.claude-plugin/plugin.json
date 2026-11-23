@@ -1,0 +1,1 @@
+{ "name": "rei-theme", "version": "0.2.0", "description": "Rei: a Japanese washi-and-sumi look with dashboard-style cards and a session dashboard pane.", "types": "./types/index.d.ts" }
