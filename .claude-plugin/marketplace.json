@@ -1,0 +1,11 @@
+{
+  "name": "rei",
+  "owner": { "name": "ShizuyaRei917" },
+  "plugins": [
+    {
+      "name": "rei-theme",
+      "source": "./rei-theme",
+      "description": "Rei 工作台：和风主题、仪表板、陪你写代码的小春，以及工具箱。"
+    }
+  ]
+}
