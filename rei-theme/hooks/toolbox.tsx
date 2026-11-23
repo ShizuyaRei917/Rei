@@ -28,6 +28,8 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'builtin', label: '内置工具' },
 ]
 
+const SURFACE_NAMES: Record<string, string> = { desktop: '电脑 App', mobile: '手机 App', terminal: '终端', vscode: 'VS Code' }
+
 type Usage = Record<string, { count: number; last: number }>
 
 const EMPTY: Heartbeat = { loadedAt: 0, events: 0, lastEvent: '—', lastAt: 0, refreshed: 0 }
@@ -53,6 +55,16 @@ export async function toolboxBeat($: EngineInterface, event: string) {
   await update($, beat, (b): Heartbeat => ({
     ...b, loadedAt: b.loadedAt === 0 ? now : b.loadedAt, events: b.events + 1, lastEvent: event, lastAt: now,
   }))
+}
+
+// Notes each device (surface) that asked the mod for a drawing, and when: shows whether a phone is attached.
+export async function toolboxSeen($: EngineInterface, surface: string) {
+  const b = await read($, beat)
+  const now = await $.clock.now()
+  const last = b.surfaces?.[surface] ?? 0
+  if (now - last > 15000) {
+    await update($, beat, (x): Heartbeat => ({ ...x, surfaces: { ...x.surfaces, [surface]: now } }))
+  }
 }
 
 // Remembers which tools and skills get used, across sessions.
@@ -136,6 +148,10 @@ export function registerToolbox(on: On) {
         </Text>
         <Text dimColor size="caption">加载于 {clock(hb.loadedAt)}　·　钩子触发 {String(hb.events)} 次</Text>
         <Text dimColor size="caption">最近一次：{hb.lastEvent}（{clock(hb.lastAt)}）</Text>
+        <Text dimColor size="caption">
+          来要过画面的设备：{Object.keys(hb.surfaces ?? {}).length === 0 ? '还没有'
+            : Object.entries(hb.surfaces ?? {}).map(([name, at]) => `${SURFACE_NAMES[name] ?? name}（${clock(at)}）`).join('、')}
+        </Text>
       </Box>
     )
 

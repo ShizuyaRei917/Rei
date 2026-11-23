@@ -4,7 +4,7 @@ import type { EngineInterface, On } from 'claude-code'
 import type { ChatLine, Companion, Mood } from '../types'
 import { koharu, picture, PICTURE_PAD, POSE } from './koharu-art.js'
 import type { Pose } from './koharu-art.js'
-import { toolboxBeat } from './toolbox.js'
+import { toolboxBeat, toolboxSeen } from './toolbox.js'
 
 export const KOHARU_PANE = 'rei-koharu'
 const TITLE = '小春 Koharu'
@@ -231,6 +231,7 @@ export function registerKoharu(on: On) {
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    void toolboxSeen($, e.surface)
     if (e.surface !== 'mobile' || e.props.hasSurvey) {
       return next(e)
     }

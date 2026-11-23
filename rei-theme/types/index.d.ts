@@ -25,6 +25,7 @@ export type Heartbeat = {
   lastAt: number
   refreshed: number
   tab?: 'home' | 'panels' | 'plugins' | 'connectors' | 'builtin'
+  surfaces?: Record<string, number>
 }
 
 declare module 'claude-code' {
