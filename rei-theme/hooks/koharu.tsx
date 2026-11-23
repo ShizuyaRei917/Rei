@@ -197,6 +197,21 @@ export async function koharuOnTurnEnd($: EngineInterface, isOk: boolean) {
   }
 }
 
+function poke($: EngineInterface) {
+  touch()
+  const r = Math.random()
+  return r < 0.35 ? say($, 'angry', pick(['呀！不要戳啦！', '哼！再戳就咬你哦！']))
+    : r < 0.7 ? say($, 'worry', pick(['呜哇！吓、吓到了…', '诶诶？怎么了怎么了？']))
+    : say($, 'curious', pick(['嗯？叫小春有事吗？', '怎么啦？要一起玩吗？']))
+}
+
+function pat($: EngineInterface) {
+  touch()
+  return Math.random() < 0.3
+    ? say($, 'pout', pick(['哼…才、才没有很开心呢！', '不要一直摸啦…（尾巴在摇）']))
+    : say($, Math.random() < 0.5 ? 'love' : 'cheer', pick(['嘿嘿～好舒服！', '再摸一下嘛～', '(〃ω〃) 害羞…']))
+}
+
 async function openKoharu($: EngineInterface) {
   await $.ui.open({ id: KOHARU_PANE, title: TITLE })
 
@@ -213,6 +228,33 @@ export function registerKoharu(on: On) {
     void toolboxBeat($, 'turn.complete')
 
     return result
+  })
+
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    if (e.surface !== 'mobile' || e.props.hasSurvey) {
+      return next(e)
+    }
+    const { Box, Text, Button, Svg } = $.ui.resolve(e)
+    const s = await read($, state)
+    const pose = POSE[s.mood]
+    const [picW, picH] = SIZE[pose]
+    const webp = s.form === 'fox' || !USE_SHARP ? undefined : await loadPicture($, pose, 'webp')
+    const face = webp !== undefined
+      ? <Svg source={picture(webp, picW, picH, s.mood)} alt={`小春 (${s.mood})`} width={72} height={Math.round((72 * (picH + PICTURE_PAD.y)) / (picW + PICTURE_PAD.x))} />
+      : <Svg source={koharu(s.mood)} alt={`小狐狸小春 (${s.mood})`} width={56} height={56} />
+
+    return (
+      <Box flexDirection="row" gap={1} alignItems="center">
+        {face}
+        <Box flexDirection="column" flexGrow={1} gap={1}>
+          <Text>{s.line}</Text>
+          <Box flexDirection="row" gap={1}>
+            <Button key="band-pat" label="摸摸头 ♡" onPress={() => pat($)} />
+            <Button key="band-poke" label="戳一下 👉" onPress={() => poke($)} />
+          </Box>
+        </Box>
+      </Box>
+    )
   })
 
   on('ui.render', { component: 'Pane', requestId: KOHARU_PANE }, async ($, e) => {
@@ -263,16 +305,8 @@ export function registerKoharu(on: On) {
           onSubmit={value => { void chat($, value) }}
         />
         <Box flexDirection="row" gap={1}>
-          <Button key="poke" label="戳一下 👉" onPress={() => {
-            touch()
-            const r = Math.random()
-            return r < 0.35 ? say($, 'angry', pick(['呀！不要戳啦！', '哼！再戳就咬你哦！']))
-              : r < 0.7 ? say($, 'worry', pick(['呜哇！吓、吓到了…', '诶诶？怎么了怎么了？']))
-              : say($, 'curious', pick(['嗯？叫小春有事吗？', '怎么啦？要一起玩吗？']))
-          }} />
-          <Button key="pat" label="摸摸头 ♡" onPress={() => { touch(); return Math.random() < 0.3
-            ? say($, 'pout', pick(['哼…才、才没有很开心呢！', '不要一直摸啦…（尾巴在摇）']))
-            : say($, Math.random() < 0.5 ? 'love' : 'cheer', pick(['嘿嘿～好舒服！', '再摸一下嘛～', '(〃ω〃) 害羞…'])) }} />
+          <Button key="poke" label="戳一下 👉" onPress={() => poke($)} />
+          <Button key="pat" label="摸摸头 ♡" onPress={() => pat($)} />
           <Button
             key="form"
             label={s.form === 'fox' ? '变成人形 ✿' : '变成小狐狸 🦊'}
